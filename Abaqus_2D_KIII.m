@@ -1,6 +1,5 @@
 function [UnitOffset,J,KI,KII,KIII] = Abaqus_2D_KIII(Dir,M4)
 % variable M4 is for the displacement components
-
 %%
 tmp = sortrows([M4.X(:) M4.Y(:) M4.Z(:) M4.Ux(:) M4.Uy(:) M4.Uz(:)],[3,1,2]);
 [~,dataum ] = reshapeData(tmp);
@@ -25,7 +24,7 @@ for iO=1:3
         Dirxyz.Maps.Ux = 1/2*(Dir.Maps.Ux-flipud(Dir.Maps.Ux));
         Dirxyz.Maps.Uy = 1/2*(Dir.Maps.Uy+flipud(Dir.Maps.Uy));
     elseif iO == 3 % Mode III
-        Dirxyz.Maps.Uy = ones(size(Dir.Maps.Ux))*1e-12;
+        Dirxyz.Maps.Uy = 1/2*(Dir.Maps.Uz+flipud(Dir.Maps.Uz));%ones(size(Dir.Maps.Ux))*1e-12;
         Dirxyz.Maps.Ux = 1/2*(Dir.Maps.Uz-flipud(Dir.Maps.Uz));
     end
     alldata = Dirxyz.Maps;
@@ -47,14 +46,14 @@ for iO=1:3
 %         Abaqus = [Dir.results '\Abaqus Output\KIII'];
         [Jd,~,~,KIII] = PlotKorJ(Abaqus,Dir.E,UnitOffset,1);
         KIII.Raw = KIII.Raw*sqrt(2*Dir.G/Dir.E);
-        KIII.Raw  = KIII.Raw*sqrt(2*Dir.G/Dir.E);
-        Jd.K.Raw  = (KIII.Raw.*1e6).^2/(2*Dir.G);
-        loT(iO) = length(KIII.Raw);
+        KIII.Raw = KIII.Raw*sqrt(2*Dir.G/Dir.E);
+        Jd.K.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
+        loT(iO)  = length(KIII.Raw);
     end
     JKRaw(iO,1:length(Jd.K.Raw)) = Jd.K.Raw;
     JRaw(iO,1:length(Jd.Raw)) = Jd.Raw;
 end
-Dir=Dirxyz;
+% Dir = Dirxyz;
 J.JKIII = JKRaw;
 J.JIII = JRaw;
 %%
@@ -81,10 +80,11 @@ KIII.true = round(mean(rmoutliers(KIII.Raw(contrs:end))),dic);
 KIII.div  = round(std(rmoutliers(KIII.Raw(contrs:end)),1),dic);
 
 %%
-% save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
+save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
 plotJKIII(KI,KII,KIII,J,Dir.Maps.stepsize,Dir.input_unit)
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.fig']);
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.tif']);    close
+
 plotDecomposed(M4)
 saveas(gcf, [Dir.results '\U_Dec.fig']);
 saveas(gcf, [Dir.results '\U_Dec.tif']);    close
