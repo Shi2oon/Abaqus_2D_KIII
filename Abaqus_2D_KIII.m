@@ -1,6 +1,7 @@
 function [UnitOffset,J,KI,KII,KIII] = Abaqus_2D_KIII(Dir,M4)
 % variable M4 is for the displacement components
 %%
+addpath([pwd '\functions'])
 tmp = sortrows([M4.X(:) M4.Y(:) M4.Z(:) M4.Ux(:) M4.Uy(:) M4.Uz(:)],[3,1,2]);
 % try
 %     [Dir.RadEulerAng,Dir.rotCentre,tmp]=toShoeMake(tmp);
@@ -16,11 +17,12 @@ Dir.Maps.Uy = mean(dataum.Uy,3);    Dir.Maps.Uz = mean(dataum.Uz,3);
 
 if strcmpi(Dir.type, 'A')
     [Dir.E,Dir.nu,Dir.G,Dir.Co] = effectiveE_v(Dir.Stiffness); % in Pa
-    if strcmpi(Dir.Operation, 'xED')
-        Dir.E = Dir.E/(1-Dir.nu^2);% for HR-EBSD plane strain conditions
-        Dir.stressstat = 'plane_strain';
-    end
 else
+    Dir.G = Dir.E/(2*(1 + Dir.nu));
+end
+
+if strcmpi(Dir.stressstat, 'plane_strain')
+    Dir.E = Dir.E/(1-Dir.nu^2);% for HR-EBSD plane strain conditions
     Dir.G = Dir.E/(2*(1 + Dir.nu));
 end
 
@@ -36,7 +38,9 @@ for iO=1:3
         Dirxyz.Maps.Uy = 1/2*(Dir.Maps.Uy+flipud(Dir.Maps.Uy));
     elseif iO == 3 % Mode III
         Dirxyz.Maps.Ux = 1/2*(Dir.Maps.Uz-flipud(Dir.Maps.Uz));
-        Dirxyz.Maps.Uy = 1/2*(Dir.Maps.Uz+flipud(Dir.Maps.Uz));%ones(size(Dir.Maps.Ux))*1e-12;
+        % in case it is zero as Abaqus won't work
+        Dirxyz.Maps.Uy = 1/2*(Dir.Maps.Uz+flipud(Dir.Maps.Uz)) ... 
+                         + ones(size(Dir.Maps.Ux))*1e-12;
     end
     alldata = Dirxyz.Maps;
     [DATA,UnitOffset,Dirxyz, Dirxyz.msk,SaveD] = ...
@@ -56,20 +60,15 @@ for iO=1:3
     elseif iO==3 % fix KIII to shear rather than modulus
 %         Abaqus = [Dir.results '\Abaqus Output\KIII'];
         [Jd,~,addKI,KIII] = PlotKorJ(Abaqus,Dir.E,UnitOffset,1);
-        % for some reason directl multibaction does not work
-        % KIII.Raw*sqrt(2*Dir.G/Dir.E)*sqrt(2*Dir.G/Dir.E) or just
-        % KIII.Raw*2*Dir.G/Dir.E
-        KIII.Raw = KIII.Raw*sqrt(2*Dir.G/Dir.E);
-        KIII.Raw = KIII.Raw*sqrt(2*Dir.G/Dir.E);
-        
+        KIII.Raw = KIII.Raw*2*Dir.G/Dir.E;
         Jd.K.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
         loT(iO)  = length(KIII.Raw);
     end
     JKRaw(iO,1:length(Jd.K.Raw)) = Jd.K.Raw;
     JRaw(iO,1:length(Jd.Raw)) = Jd.Raw;
 end
-JKRaw(4,1:length(addKI.Raw)) = addKI.Raw;
-JRaw(4,1:length(Jd.Raw)) = (addKI.Raw.*1e6).^2/Dir.E;
+JKRaw(4,1:length(addKI.Raw)) = -addKI.Raw;
+JRaw(4,1:length(Jd.Raw)) = (-addKI.Raw.*1e6).^2/Dir.E;
 J.JKIII = JKRaw;
 J.JIII = JRaw;
 
@@ -79,7 +78,7 @@ J.K.Raw = sum(J.JKIII(:,1:min(loT)));
 J.Raw = J.Raw(1:min(loT));      
 J.K.Raw = J.K.Raw(1:min(loT));
 KI.Raw = KI.Raw(1:min(loT));    
-addKI.Raw = addKI.Raw(1:min(loT));
+addKI.Raw = -addKI.Raw(1:min(loT));
 KII.Raw = KII.Raw(1:min(loT));
 KIII.Raw = KIII.Raw(1:min(loT));
 
@@ -104,7 +103,7 @@ KIII.div  = round(std(rmoutliers(KIII.Raw(contrs:end)),1),dic);
 
 %%
 save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
-plotJKIII(KI,KII,KIII,J,Dir.Maps.stepsize,Dir.input_unit)
+plotJKIII(KI,KII,KIII,J,Dir.stepsize,Dir.input_unit)
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.fig']);
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.tif']);    close
 
