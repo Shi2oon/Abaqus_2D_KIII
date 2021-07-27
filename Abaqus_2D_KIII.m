@@ -99,9 +99,9 @@ KII.true = round(mean(rmoutliers(KII.Raw(contrs:end))),dic);
 KII.div  = round(std(rmoutliers(KII.Raw(contrs:end)),1),dic);
 KIII.true = round(mean(rmoutliers(KIII.Raw(contrs:end))),dic);
 KIII.div  = round(std(rmoutliers(KIII.Raw(contrs:end)),1),dic);
-
-%%
 save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
+%
+%%
 plotJKIII(KI,KII,KIII,J,Dir.stepsize,Dir.input_unit)
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.fig']);
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.tif']);    close
@@ -109,4 +109,5 @@ saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.tif']);    close
 plotDecomposed(M4)
 saveas(gcf, [Dir.results '\U_Dec.fig']);
 saveas(gcf, [Dir.results '\U_Dec.tif']);    close
+%}
 end
