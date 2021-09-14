@@ -23,6 +23,7 @@ end
 
 if strcmpi(Dir.stressstat, 'plane_strain')
     Dir.E = Dir.E/(1-Dir.nu^2);% for HR-EBSD plane strain conditions
+    Dir.G = Dir.E/(2*(1 + Dir.nu));
 end
 
 names = {'KI','KII','KIII'};
