@@ -108,8 +108,8 @@ saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.tif']);    close all
 
 save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
 
-% plotDecomposed(M4)
-% saveas(gcf, [Dir.results '\U_Dec.fig']);
-% saveas(gcf, [Dir.results '\U_Dec.tif']);    close
+plotDecomposed(M4)
+saveas(gcf, [Dir.results '\U_Dec.fig']);
+saveas(gcf, [Dir.results '\U_Dec.tif']);    close
 %}
 end
