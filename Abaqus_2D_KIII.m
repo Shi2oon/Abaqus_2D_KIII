@@ -60,30 +60,31 @@ for iO=1:3
     elseif iO==3 % fix KIII to shear rather than modulus
 %         Abaqus = [Dir.results '\Abaqus Output\KIII'];
         [Jd,~,addKI,KIII] = PlotKorJ(Abaqus,Dir.E,UnitOffset,1);
-        KIII.Raw = KIII.Raw*2*Dir.G/Dir.E;
+        KIII.Raw = KIII.Raw*2*Dir.G/Dir.E; % correct from in-plane to out-of-plane shear
+        Jd.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
         Jd.K.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
         loT(iO)  = length(KIII.Raw);
     end
-    JKRaw(iO,1:length(Jd.K.Raw)) = Jd.K.Raw;
-    JRaw(iO,1:length(Jd.Raw)) = Jd.Raw;
+    JKRaw(iO,1:length(Jd.K.Raw)) = Jd.K.Raw; % J when calculating the SIF (more accurate)
+    JRaw(iO,1:length(Jd.Raw)) = Jd.Raw; % J from J analysis
 end
-JKRaw(4,1:length(addKI.Raw)) = -addKI.Raw;
-JRaw(4,1:length(Jd.Raw)) = (-addKI.Raw.*1e6).^2/Dir.E;
+JKRaw(4,1:length(addKI.Raw)) = (addKI.Raw.*1e6).^2/Dir.E;
+JRaw(4,1:length(addKI.Raw)) = (addKI.Raw.*1e6).^2/Dir.E; % J(I)r
 J.JKIII = JKRaw;
 J.JIII = JRaw;
 
-%% Cut to the same contourf convergence
+%% Cut to the same contour convergence (IoT value)
 J.Raw = sum(J.JIII(:,1:min(loT)));
 J.K.Raw = sum(J.JKIII(:,1:min(loT)));
+
 J.Raw = J.Raw(1:min(loT));      
 J.K.Raw = J.K.Raw(1:min(loT));
 KI.Raw = KI.Raw(1:min(loT));    
-addKI.Raw = -addKI.Raw(1:min(loT));
+addKI.Raw = addKI.Raw(1:min(loT));
+KI.addKI.Raw = addKI.Raw ;
+KI.Raw = KI.Raw + addKI.Raw;% add addtional KI to KI
 KII.Raw = KII.Raw(1:min(loT));
 KIII.Raw = KIII.Raw(1:min(loT));
-
-% add addtional KI to KI
-KI.Raw = KI.Raw + addKI.Raw;
 
 %%
 contrs   = length(J.Raw);        contrs = contrs - round(contrs*0.4);
@@ -96,17 +97,19 @@ J.K.div    = round(std(rmoutliers(J.K.Raw(contrs:end)),1),dic);
 
 KI.true  = round(mean(rmoutliers(KI.Raw(contrs:end))),dic);
 KI.div   = round(std(rmoutliers(KI.Raw(contrs:end)),1),dic);
+KI.addKI.true  = round(mean(rmoutliers(KI.addKI.Raw(contrs:end))),dic);
+KI.addKI.div   = round(std(rmoutliers(KI.addKI.Raw(contrs:end)),1),dic);
+
 KII.true = round(mean(rmoutliers(KII.Raw(contrs:end))),dic);
 KII.div  = round(std(rmoutliers(KII.Raw(contrs:end)),1),dic);
 KIII.true = round(mean(rmoutliers(KIII.Raw(contrs:end))),dic);
 KIII.div  = round(std(rmoutliers(KIII.Raw(contrs:end)),1),dic);
+save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
 %
 %%
 plotJKIII(KI,KII,KIII,J,Dir.Maps.stepsize,Dir.input_unit)
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.fig']);
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.tif']);    close all
-
-save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
 
 plotDecomposed(M4)
 saveas(gcf, [Dir.results '\U_Dec.fig']);

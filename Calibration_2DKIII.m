@@ -3,11 +3,11 @@ function [Maps,M4,alldata] = Calibration_2DKIII(KI,KII,KIII)
               close all                   
 % Domain size (square, crack tip at centre).
 Maps.Mat          = 'Calibration';
-Maps.type         = 'A';
+Maps.type         = 'E';
 Maps.input_unit   = 'm';        % meter (m) or milmeter (mm) or micrometer(um);
-Maps.units.xy     = Maps.input_unit; 
-Maps.units.S      = 'Pa';      
-Maps.units.St     = 'Pa'; 
+Maps.Maps.units.xy     = Maps.input_unit; 
+Maps.Maps.units.S      = 'Pa';      
+Maps.Maps.units.St     = 'Pa'; 
 Maps.pixel_size   = 1;           % if DIC values are in pixel, 1 if in physical units;
 Maps.Dim          = '3D';        % handles  2D and 3D data with option
 Maps.Operation    = 'xED';       % Strain, xED = xEBSD, DIC = Displacement
@@ -15,7 +15,7 @@ Maps.stressstat   = 'plane_stress'; % 'plane_stress' OR 'plane_strain'
 Maps.unique       = 'Calibration';
 sz = 50;
 
-switch Maps.units.xy
+switch Maps.input_unit
     case 'm'
         saf = 1;
     case 'mm'
@@ -52,7 +52,7 @@ Maps.SavingD = [pwd];
 Maps.results = [pwd];
 
 %% Anayltical displacement data.
-Maps.stepsize = 1/sz*2;
+Maps.Maps.stepsize = 1/sz*2;
 lin = Maps.stepsize*(ceil(-1/Maps.stepsize)+1/2):Maps.stepsize:Maps.stepsize*(floor(1/Maps.stepsize)-1/2);
 [Maps.X,Maps.Y,Maps.Z] = meshgrid(lin,lin,0);
 [th,r] = cart2pol(Maps.X,Maps.Y);
