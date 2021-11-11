@@ -141,8 +141,6 @@ Kon = min([length(OutJ) length(JK) length(KI) length(KII)]);
 OutJ(Kon:end)=[];   KI(Kon:end)=[]; KII(Kon:end)=[];    JK(Kon:end)=[];
 %}
 close all; plot(OutJ); hold on; plot(JK); legend('J','J_K')%trim acess 
-% oh=14;OutJ=OutJ(1:oh);KI=KI(1:oh);KII=KII(1:oh);JK=JK(1:oh);
-
 set(gcf,'position',[98 311 1481 667])
 text(1:length(JK),JK,string([1:length(JK)]))
 oh = input('where to cut the contour? ');               close;

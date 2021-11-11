@@ -94,6 +94,9 @@ J.true   = round(mean(rmoutliers(J.Raw(contrs:end))),dic);
 J.div    = round(std(rmoutliers(J.Raw(contrs:end)),1),dic);
 J.K.true   = round(mean(rmoutliers(J.K.Raw(contrs:end))),dic);
 J.K.div    = round(std(rmoutliers(J.K.Raw(contrs:end)),1),dic);
+J.addJ.Raw = JRaw(4,1:min(loT));
+J.addJ.true   = round(mean(rmoutliers(J.addJ.Raw(contrs:end))),dic);
+J.addJ.div    = round(std(rmoutliers(J.addJ.Raw(contrs:end)),1),dic);
 
 KI.true  = round(mean(rmoutliers(KI.Raw(contrs:end))),dic);
 KI.div   = round(std(rmoutliers(KI.Raw(contrs:end)),1),dic);
@@ -104,12 +107,14 @@ KII.true = round(mean(rmoutliers(KII.Raw(contrs:end))),dic);
 KII.div  = round(std(rmoutliers(KII.Raw(contrs:end)),1),dic);
 KIII.true = round(mean(rmoutliers(KIII.Raw(contrs:end))),dic);
 KIII.div  = round(std(rmoutliers(KIII.Raw(contrs:end)),1),dic);
-save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
+
 %
 %%
 plotJKIII(KI,KII,KIII,J,Dir.Maps.stepsize,Dir.input_unit)
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.fig']);
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.tif']);    close all
+
+save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
 
 plotDecomposed(M4)
 saveas(gcf, [Dir.results '\U_Dec.fig']);

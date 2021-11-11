@@ -53,7 +53,7 @@ Maps.results = [pwd];
 
 %% Anayltical displacement data.
 Maps.Maps.stepsize = 1/sz*2;
-lin = Maps.stepsize*(ceil(-1/Maps.stepsize)+1/2):Maps.stepsize:Maps.stepsize*(floor(1/Maps.stepsize)-1/2);
+lin = Maps.Maps.stepsize*(ceil(-1/Maps.Maps.stepsize)+1/2):Maps.Maps.stepsize:Maps.Maps.stepsize*(floor(1/Maps.Maps.stepsize)-1/2);
 [Maps.X,Maps.Y,Maps.Z] = meshgrid(lin,lin,0);
 [th,r] = cart2pol(Maps.X,Maps.Y);
 DataSize = [numel(lin),numel(lin),1];
@@ -67,7 +67,7 @@ M4.Uy = ( 0.5*KI/G*sqrt(r/(2*pi)).*(+sin(th/2).*(kappa-cos(th)))+...
               0.5*KII/G*sqrt(r/(2*pi)).*(-cos(th/2).*(kappa-2+cos(th))))*saf;
 M4.Uz = ( 2*KIII/G*sqrt(r/(2*pi)).*sin(th/2))*saf;
 
-Maps.stepsize = Maps.stepsize*saf;
+Maps.Maps.stepsize = Maps.Maps.stepsize*saf;
  
 Maps.xo = [-0.01;-0.99]*saf;        Maps.xm = [0.01;-0.99]*saf;
 Maps.yo = [0.0026;0.0026]*saf;      Maps.ym = [0.03;-0.03]*saf;
@@ -75,9 +75,9 @@ Maps.yo = [0.0026;0.0026]*saf;      Maps.ym = [0.03;-0.03]*saf;
 
 %%
 %% JMAN approach (without FEM) - Standard J-integral.
-[Maps.E11,Maps.E12,Maps.E13] = crackgradient(M4.Ux,Maps.stepsize);
-[Maps.E21,Maps.E22,Maps.E23] = crackgradient(M4.Uy,Maps.stepsize);
-[Maps.E31,Maps.E32,Maps.E33] = crackgradient(M4.Uz,Maps.stepsize);
+[Maps.E11,Maps.E12,Maps.E13] = crackgradient(M4.Ux,Maps.Maps.stepsize);
+[Maps.E21,Maps.E22,Maps.E23] = crackgradient(M4.Uy,Maps.Maps.stepsize);
+[Maps.E31,Maps.E32,Maps.E33] = crackgradient(M4.Uz,Maps.Maps.stepsize);
 alldata = [Maps.X(:) Maps.Y(:) Maps.Z(:) Maps.E11(:) Maps.E12(:) Maps.E13(:)...
      Maps.E21(:) Maps.E22(:) Maps.E23(:) Maps.E31(:) Maps.E32(:) Maps.E33(:)]; 
 %%
