@@ -88,7 +88,7 @@ KIII.Raw = KIII.Raw(1:min(loT));
 
 %%
 contrs   = length(J.Raw);        contrs = contrs - round(contrs*0.4);
-dic = real(ceil(-log10(nanmean(rmoutliers(J.Raw(contrs:end))))))+2;
+dic = 6;%real(ceil(-log10(nanmean(rmoutliers(J.Raw(contrs:end))))))+2;
 if dic<1;       dic = 1;    end
 J.true   = round(mean(rmoutliers(J.Raw(contrs:end))),dic);
 J.div    = round(std(rmoutliers(J.Raw(contrs:end)),1),dic);
@@ -108,7 +108,7 @@ KII.div  = round(std(rmoutliers(KII.Raw(contrs:end)),1),dic);
 KIII.true = round(mean(rmoutliers(KIII.Raw(contrs:end))),dic);
 KIII.div  = round(std(rmoutliers(KIII.Raw(contrs:end)),1),dic);
 
-%
+%{
 %%
 plotJKIII(KI,KII,KIII,J,Dir.Maps.stepsize,Dir.input_unit)
 saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.fig']);

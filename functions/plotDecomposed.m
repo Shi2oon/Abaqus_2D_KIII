@@ -23,15 +23,15 @@ axis image; axis off; colormap jet; box off; %set(gca,'Ydir','reverse')
 c  =colorbar;	cU(3,:) = c.Limits;     colorbar off;
 
 s5=subplot(2,4,5);  	contourf(X1,Y1,Um1,'LineStyle','none'); 	
-title('U^{I}_M','fontsize',20);
+title('U^{I}_m','fontsize',20);
 axis image; axis off; colormap jet; box off; 
 c  =colorbar;	cU(4,:) = c.Limits;     colorbar off; 
 s6=subplot(2,4,6);  	contourf(X1,Y1,Um2,'LineStyle','none'); 	
-title('U^{II}_M','fontsize',20);
+title('U^{II}_m','fontsize',20);
 axis image; axis off; colormap jet; box off; %set(gca,'Ydir','reverse')
 c  =colorbar;	cU(5,:) = c.Limits;     colorbar off;
 s7=subplot(2,4,7);  	contourf(X1,Y1,Um3,'LineStyle','none'); 	
-title('U^{III}_M','fontsize',20);
+title('U^{III}_m','fontsize',20);
 axis image; axis off; colormap jet; box off; %set(gca,'Ydir','reverse')
 c  =colorbar;	cU(6,:) = c.Limits;     colorbar off;
 s8=subplot(1,4,4);contourf(X1,Y1,Um,'LineStyle','none')
