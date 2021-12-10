@@ -23,17 +23,18 @@ axis image; axis off; colormap jet; box off; %set(gca,'Ydir','reverse')
 c  =colorbar;	cU(3,:) = c.Limits;     colorbar off;
 
 s5=subplot(2,3,6);  	contourf(X1,Y1,Um3,'LineStyle','none'); 	
-title('U^{III}_{Sy.}','fontsize',20);
+title('U^{III}_{Asy.}','fontsize',20);
 axis image; axis off; colormap jet; box off; %set(gca,'Ydir','reverse')
 c  =colorbar;	cU(5,:) = c.Limits;     colorbar off;
 s6=subplot(2,3,5);  	contourf(X1,Y1,Um4,'LineStyle','none'); 	
 axis image; axis off; colormap jet; box off; 
 c  =colorbar;	cU(6,:) = c.Limits;     colorbar off; 
-addScale([2 3 6],[X1(:) Y1(:)]);title('U^{III}_{Asy.}','fontsize',20);
+title('U^{III}_{Sy.}','fontsize',20);
+addScale([2 3 6],[X1(:) Y1(:)]);
 %
 cbax  = axes('visible', 'off');         cU(abs(cU)==1)=0;
 caxis(cbax,[min(cU(:)) max(cU(:))]);
-h = colorbar(cbax, 'location', 'southoutside','position', [0.3513 0.0833 0.3 0.03] );
+h = colorbar(cbax, 'location', 'southoutside','position', [0.1356 0.2432 0.2151 0.0322] );
 h.Label.String = [ 'U [\mum]']; 
 set([s1 s2 s3 s5 s6],"clim",caxis);
 %}

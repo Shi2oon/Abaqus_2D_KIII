@@ -12,8 +12,14 @@ tmp = sortrows([M4.X(:) M4.Y(:) M4.Z(:) M4.Ux(:) M4.Uy(:) M4.Uz(:)],[3,1,2]);
 % end
 [~,dataum ] = reshapeData(tmp);
 Dir.Maps.X1 = mean(dataum.X1,3);    Dir.Maps.Y1 = mean(dataum.Y1,3);
-Dir.Maps.Z1 = mean(dataum.Z1,3);    Dir.Maps.Ux = mean(dataum.Ux,3);
-Dir.Maps.Uy = mean(dataum.Uy,3);    Dir.Maps.Uz = mean(dataum.Uz,3);
+Dir.Maps.Z1 = mean(dataum.Z1,3);    
+% Dir.Maps.Ux = mean(dataum.Ux,3);
+% Dir.Maps.Uy = mean(dataum.Uy,3);    
+% Dir.Maps.Uz = mean(dataum.Uz,3);
+
+Dir.Maps.Ux = squeeze(dataum.Ux(:,:,1));
+Dir.Maps.Uy = squeeze(dataum.Uy(:,:,1));    
+Dir.Maps.Uz = squeeze(dataum.Uz(:,:,1));
 
 if strcmpi(Dir.type, 'A')
     [Dir.E,Dir.nu,Dir.G,Dir.Co] = effectiveE_v(Dir.Stiffness); % in Pa
