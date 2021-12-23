@@ -87,12 +87,12 @@ KIII.Raw = KIII.Raw(1:min(loT));
 %%
 contrs   = length(J.Raw);        contrs = contrs - round(contrs*0.4);
 dic = real(ceil(-log10(nanmean(rmoutliers(J.Raw(contrs:end))))))+2;
-if dic<1;       dic = 1;    end
+if dic<2;       dic = 2;    end
 J.true   = round(mean(rmoutliers(J.Raw(contrs:end))),dic);
 J.div    = round(std(rmoutliers(J.Raw(contrs:end)),1),dic);
 J.K.true   = round(mean(rmoutliers(J.K.Raw(contrs:end))),dic);
 J.K.div    = round(std(rmoutliers(J.K.Raw(contrs:end)),1),dic);
-J.addJ.Raw = JRaw(3,1:min(loT));
+% J.addJ.Raw = JRaw(3,1:min(loT));
 J.addJ.true   = round(mean(rmoutliers(J.addJ.Raw(contrs:end))),dic);
 J.addJ.div    = round(std(rmoutliers(J.addJ.Raw(contrs:end)),1),dic);
 
