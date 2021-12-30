@@ -3,8 +3,8 @@ function [Maps,M4,alldata] = Calibration_2DKIII(KI,KII,KIII)
               close all                   
 % Domain size (square, crack tip at centre).
 Maps.Mat          = 'Calibration';
-Maps.type         = 'E';
-Maps.input_unit   = 'm';        % meter (m) or milmeter (mm) or micrometer(um);
+Maps.type         = 'A'; % 'A' if u want to use anistropic matrix or 'E' for linear elastic
+Maps.input_unit   = 'um';        % meter (m) or milmeter (mm) or micrometer(um);
 Maps.Maps.units.xy     = Maps.input_unit; 
 Maps.Maps.units.S      = 'Pa';      
 Maps.Maps.units.St     = 'Pa'; 
@@ -39,7 +39,7 @@ G = Maps.E/(2*(1 + Maps.nu));  % Shear modulus
 KI = KI*1e6;                                                                     % Mode I SIF
 KII = KII*1e6;                                                                    % Mode II SIF
 KIII = KIII*1e6; 
-%{
+%
 Maps.Stiffness = [1/Maps.E          -Maps.nu/Maps.E     -Maps.nu/Maps.E 0 0 0
                  -Maps.nu/Maps.E        1/Maps.E        -Maps.nu/Maps.E 0 0 0
                  -Maps.nu/Maps.E    -Maps.nu/Maps.E         1/Maps.E    0 0 0
@@ -72,8 +72,6 @@ Maps.Maps.stepsize = Maps.Maps.stepsize*saf;
 Maps.xo = [-0.01;-0.99]*saf;        Maps.xm = [0.01;-0.99]*saf;
 Maps.yo = [0.0026;0.0026]*saf;      Maps.ym = [0.03;-0.03]*saf;
 
-
-%%
 %% JMAN approach (without FEM) - Standard J-integral.
 [Maps.E11,Maps.E12,Maps.E13] = crackgradient(M4.Ux,Maps.Maps.stepsize);
 [Maps.E21,Maps.E22,Maps.E23] = crackgradient(M4.Uy,Maps.Maps.stepsize);

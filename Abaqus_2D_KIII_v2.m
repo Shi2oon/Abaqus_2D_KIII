@@ -21,6 +21,7 @@ Dir.Maps.Ux = squeeze(dataum.Ux(:,:,1));
 Dir.Maps.Uy = squeeze(dataum.Uy(:,:,1));    
 Dir.Maps.Uz = squeeze(dataum.Uz(:,:,1));
 
+%%
 if strcmpi(Dir.type, 'A')
     [Dir.E,Dir.nu,Dir.G,Dir.Co] = effectiveE_v(Dir.Stiffness); % in Pa
 else
@@ -59,16 +60,18 @@ for iO=1:2
     elseif iO==2 % fix KIII to shear rather than modulus
 %         Abaqus = [Dir.results '\Abaqus Output\KIII'];
         [Jd,~,addKI,KIII] = PlotKorJ(Abaqus,Dir.E,UnitOffset,1);
-        KIII.Raw = KIII.Raw*2*Dir.G/Dir.E; % correct from in-plane to out-of-plane shear
-        Jd.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
-        Jd.K.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
+        % correct from in-plane to out-of-plane shear
+        KIII.Raw = KIII.Raw*2*Dir.G/Dir.E; 
+%         Jd.Raw   = (KIII.Raw.*1e6).^2/(2*Dir.G);
+%         Jd.K.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
         loT(iO)  = length(KIII.Raw);
     end
-    JKRaw(iO,1:length(Jd.K.Raw)) = Jd.K.Raw; % J when calculating the SIF (more accurate)
+    % J when calculating the SIF (more accurate)
+    JKRaw(iO,1:length(Jd.K.Raw)) = Jd.K.Raw; 
     JRaw(iO,1:length(Jd.Raw)) = Jd.Raw; % J from J analysis
 end
-JKRaw(3,1:length(addKI.Raw)) = (addKI.Raw.*1e6).^2/Dir.E;
-JRaw(3,1:length(addKI.Raw)) = (addKI.Raw.*1e6).^2/Dir.E; % J(I)r
+% JKRaw(3,1:length(addKI.Raw)) = (addKI.Raw.*1e6).^2/Dir.E;
+% JRaw(3,1:length(addKI.Raw)) = (addKI.Raw.*1e6).^2/Dir.E; % J(I)r
 J.JKIII = JKRaw;
 J.JIII = JRaw;
 
@@ -87,14 +90,14 @@ KIII.Raw = KIII.Raw(1:min(loT));
 %%
 contrs   = length(J.Raw);        contrs = contrs - round(contrs*0.4);
 dic = real(ceil(-log10(nanmean(rmoutliers(J.Raw(contrs:end))))))+2;
-if dic<2;       dic = 2;    end
+if dic<1;       dic = 1;    end
 J.true   = round(mean(rmoutliers(J.Raw(contrs:end))),dic);
 J.div    = round(std(rmoutliers(J.Raw(contrs:end)),1),dic);
 J.K.true   = round(mean(rmoutliers(J.K.Raw(contrs:end))),dic);
 J.K.div    = round(std(rmoutliers(J.K.Raw(contrs:end)),1),dic);
-% J.addJ.Raw = JRaw(3,1:min(loT));
-J.addJ.true   = round(mean(rmoutliers(J.addJ.Raw(contrs:end))),dic);
-J.addJ.div    = round(std(rmoutliers(J.addJ.Raw(contrs:end)),1),dic);
+% J.addJ.Raw  = JRaw(3,1:min(loT));
+% J.addJ.true = round(mean(rmoutliers(J.addJ.Raw(contrs:end))),dic);
+% J.addJ.div  = round(std(rmoutliers(J.addJ.Raw(contrs:end)),1),dic);
 
 KI.true  = round(mean(rmoutliers(KI.Raw(contrs:end))),dic);
 KI.div   = round(std(rmoutliers(KI.Raw(contrs:end)),1),dic);
