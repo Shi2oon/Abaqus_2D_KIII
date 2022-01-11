@@ -3,7 +3,7 @@ function [OutJ,KI,KII,JK,Der_Deg] = readDATAbaqus(filrname)
 fid = fopen(filrname,'rt') ;
 S = textscan(fid,'%s','Delimiter','\n');
 S = S{1} ;
-
+fclose all;
 %% DJ_DOWN
 % try
 %     idxS = strfind(S, 'OUTPJINT_CRACK-1');

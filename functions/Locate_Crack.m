@@ -86,6 +86,7 @@ else
     answer           = questdlg(quest,'Boundary Condition','Y','N', opts);
     if strcmpi(answer,'Y') % crop data
         [datum] = Cropping10(datum.X1,datum.Y1,datum.Ux, datum.Uy);
+        datum = unifromMesh(datum);
     end
     %{
  % change mesh
