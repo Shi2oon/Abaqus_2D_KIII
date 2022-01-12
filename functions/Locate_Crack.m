@@ -67,7 +67,7 @@ set(gcf,'position',[30 50 1300 950]);
 if strcmpi(mechDat.Operation, 'xED')
     xo = mechDat.xo;            yo = mechDat.yo;
     xm = mechDat.xm;            ym = mechDat.ym;
-    if ~strcmpi(mechDat.Maps.units.xy,input_unit)
+    if ~strcmpi(mechDat.units.xy,input_unit)
         [~, ~, offset] = unist4Abaqus([],datum.units.xy);
         xo = xo*offset/saf;     yo = yo*offset/saf;
         xm = xm*offset/saf;     ym = ym*offset/saf;

@@ -1,67 +1,52 @@
-function [UnitOffset,J,KI,KII,KIII] = Abaqus_2D_KIII_v2(Dir,M4)
+function [J,KI,KII,KIII] = Abaqus_2D_KIII_v2(Maps)
 % variable M4 is for the displacement components
 %%
-addpath([pwd '\functions'])
-tmp = sortrows([M4.X(:) M4.Y(:) M4.Z(:) M4.Ux(:) M4.Uy(:) M4.Uz(:)],[3,1,2]);
-% try
-%     [Dir.RadEulerAng,Dir.rotCentre,tmp]=toShoeMake(tmp);
-%     tmp(tmp(:,4)==0 & tmp(:,5)==0 & tmp(:,6)==0,:)=[];
-%     saveas(gcf, [Dir.results '\Rot_Removed.tif']);    close all
-% catch err
-%     disp(err.message)
-% end
-[~,dataum ] = reshapeData(tmp);
-Dir.Maps.X1 = mean(dataum.X1,3);    Dir.Maps.Y1 = mean(dataum.Y1,3);
-Dir.Maps.Z1 = mean(dataum.Z1,3);    
-% Dir.Maps.Ux = mean(dataum.Ux,3);
-% Dir.Maps.Uy = mean(dataum.Uy,3);    
-% Dir.Maps.Uz = mean(dataum.Uz,3);
-
-Dir.Maps.Ux = squeeze(dataum.Ux(:,:,1));
-Dir.Maps.Uy = squeeze(dataum.Uy(:,:,1));    
-Dir.Maps.Uz = squeeze(dataum.Uz(:,:,1));
+warning on; addpath([pwd '\functions'])    
+Uz = mean(Maps.Uz,3);
+Maps.Uz = Uz(2:end,2:end);
 
 %%
-if strcmpi(Dir.type, 'A')
-    [Dir.E,Dir.nu,Dir.G,Dir.Co] = effectiveE_v(Dir.Stiffness); % in Pa
+if strcmpi(Maps.type, 'A')
+    [Maps.E,Maps.nu,Maps.G,Maps.Co] = effectiveE_v(Maps.Stiffness); % in Pa
 else
-    Dir.G = Dir.E/(2*(1 + Dir.nu));
+    Maps.G = Maps.E/(2*(1 + Maps.nu));
 end
 
-if strcmpi(Dir.stressstat, 'plane_strain')
-    Dir.E = Dir.E/(1-Dir.nu^2);% for HR-EBSD plane strain conditions
-    Dir.G = Dir.E/(2*(1 + Dir.nu));
+if strcmpi(Maps.stressstat, 'plane_strain')
+    Maps.E = Maps.E/(1-Maps.nu^2);% for HR-EBSD plane strain conditions
+    Maps.G = Maps.E/(2*(1 + Maps.nu));
 end
 
-names = {'KI','KII','KIII'};
+names = {'KI','KIII'};
 for iO=1:2
-    Dirxyz = Dir;
+    Dirxyz = Maps;
     Dirxyz.unique = names{iO};
     if iO == 1      % Mode I/II
-        Dirxyz.Maps.Ux = Dir.Maps.Ux;
-        Dirxyz.Maps.Uy = Dir.Maps.Uy;
+        Dirxyz.Ux = Maps.Ux;
+        Dirxyz.Uy = Maps.Uy;
     elseif iO == 2 % Mode III
-        Dirxyz.Maps.Ux = 1/2*(Dir.Maps.Uz-flipud(Dir.Maps.Uz));
+        Dirxyz.Ux = 1/2*(Maps.Uz-flipud(Maps.Uz));
         % in case it is zero as Abaqus won't work
-        Dirxyz.Maps.Uy = 1/2*(Dir.Maps.Uz+flipud(Dir.Maps.Uz)) ... 
-                         + ones(size(Dir.Maps.Ux))*1e-12;
+        Dirxyz.Uy = 1/2*(Maps.Uz+flipud(Maps.Uz)) ... 
+                         + ones(size(Maps.Ux))*1e-12;
     end
-    alldata = Dirxyz.Maps;
+    alldata = Dirxyz;
     [DATA,UnitOffset,Dirxyz, Dirxyz.msk,SaveD] = ...
-        Locate_Crack(alldata,Dirxyz.input_unit,Dirxyz.results,Dirxyz);
+        Locate_Crack(alldata,Dirxyz.units.xy,Dirxyz.results,Dirxyz);
     % prepare and run abaqus cae
     [Abaqus,~] = PrintRunCode(Dirxyz, ...
         Dirxyz.msk,SaveD,ceil(min(size(DATA.X1))*0.5-2),UnitOffset);
+
 %     UnitOffset = 1e-6;
     if iO == 1      % Mode I
 %         Abaqus = [Dir.results '\Abaqus Output\KI'];
-        [Jd,~,KI,KII] = PlotKorJ(Abaqus,Dir.E,UnitOffset,1);
+        [Jd,~,KI,KII] = PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
         loT(iO) = length(KI.Raw);
     elseif iO==2 % fix KIII to shear rather than modulus
 %         Abaqus = [Dir.results '\Abaqus Output\KIII'];
-        [Jd,~,addKI,KIII] = PlotKorJ(Abaqus,Dir.E,UnitOffset,1);
+        [Jd,~,addKI,KIII] = PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
         % correct from in-plane to out-of-plane shear
-        KIII.Raw = KIII.Raw*2*Dir.G/Dir.E; 
+        KIII.Raw = KIII.Raw*2*Maps.G/Maps.E; 
 %         Jd.Raw   = (KIII.Raw.*1e6).^2/(2*Dir.G);
 %         Jd.K.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
         loT(iO)  = length(KIII.Raw);
@@ -90,7 +75,7 @@ KIII.Raw = KIII.Raw(1:min(loT));
 %%
 contrs   = length(J.Raw);        contrs = contrs - round(contrs*0.4);
 dic = real(ceil(-log10(nanmean(rmoutliers(J.Raw(contrs:end))))))+2;
-if dic<1;       dic = 1;    end
+if dic<2;       dic = 2;    end
 J.true   = round(mean(rmoutliers(J.Raw(contrs:end))),dic);
 J.div    = round(std(rmoutliers(J.Raw(contrs:end)),1),dic);
 J.K.true   = round(mean(rmoutliers(J.K.Raw(contrs:end))),dic);
@@ -111,14 +96,14 @@ KIII.div  = round(std(rmoutliers(KIII.Raw(contrs:end)),1),dic);
 
 %
 %%
-plotJKIII(KI,KII,KIII,J,Dir.Maps.stepsize,Dir.input_unit)
-saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.fig']);
-saveas(gcf, [Dir.results '\J_KI_II_III_abaqus.tif']);    close all
+plotJKIII(KI,KII,KIII,J,Maps.stepsize,Maps.units.xy)
+saveas(gcf, [Maps.results '\J_KI_II_III_abaqus.fig']);
+saveas(gcf, [Maps.results '\J_KI_II_III_abaqus.tif']);    close all
 
-save([Dir.results '\Abaqus_2D_KIII.mat'],'Dir','J','KI','KII','KIII','M4');
+save([Maps.results '\Abaqus_2D_KIII.mat'],'Maps','J','KI','KII','KIII');
 
-plotDecomposed_v2(M4)
-saveas(gcf, [Dir.results '\U_Dec.fig']);
-saveas(gcf, [Dir.results '\U_Dec.tif']);    close
+plotDecomposed_v2(Maps)
+saveas(gcf, [Maps.results '\U_Dec.fig']);
+saveas(gcf, [Maps.results '\U_Dec.tif']);    close
 %}
 end
