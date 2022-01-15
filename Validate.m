@@ -1,9 +1,10 @@
+% Validation from sythetic data
 restoredefaultpath;clc;clear;close all
 addpath(genpath([pwd '\functions']));
-[Maps,alldata] = Calibration_2DKIII(3,1,5);
-[J,KI,KII,KIII] = Abaqus_2D_KIII_v2(Maps);
+[Maps,~] = Calibration_2DKIII(3,1,5);
+[J,KI,KII,KIII] = Abaqus_2D_KIII(Maps);
 
-%% HR-EBSD example, you will need mtex
+%% HR-EBSD example, you will need mtex and Strain2Disp_FE
 % restoredefaultpath;clc;clear;close all
 % run('A:\OneDrive - Nexus365\GitHub\mtex-5.2.beta2\install_mtex.m')
 clc;clear;close all; PWD = pwd;
@@ -22,4 +23,4 @@ FE_OOM(alldata,'Linear',Maps.results);
 [~,~,Maps.Z1,~,~,Maps.Uz] = plo3dUxy([Maps.results '\3D_Integrated_Uxy']);
 cd(PWD)
 % Calc. SIFs
-[J,KI,KII,KIII] = Abaqus_2D_KIII_v2(Maps);
+[J,KI,KII,KIII] = Abaqus_2D_KIII(Maps);
