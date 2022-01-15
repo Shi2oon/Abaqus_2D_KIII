@@ -2,8 +2,12 @@ function [J,KI,KII,KIII] = Abaqus_2D_KIII_v2(Maps)
 % variable M4 is for the displacement components
 %%
 warning on; addpath([pwd '\functions'])    
-Uz = mean(Maps.Uz,3);
-Maps.Uz = Uz(2:end,2:end);
+if size(Maps.Uz,3) ~=1
+    Maps.Uz = Maps.Uz(:,:,1);
+end
+if size(Maps.Ux,2)*size(Maps.Ux,2) ~= size(Maps.Uz,2)*size(Maps.Uz,2)
+    Maps.Uz = Maps.Uz(2:end,2:end);
+end
 
 %%
 if strcmpi(Maps.type, 'A')
