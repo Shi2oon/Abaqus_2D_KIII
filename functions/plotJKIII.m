@@ -12,7 +12,7 @@ ylabel('K (MPa m^{0.5})'); hold off
 if min(Kd(:))>0;     ylim([0 max(Kd(:))+min(Kd(:))/3]);      end
 yyaxis right;
 plot(Contour,J.K.Raw,'r--<','MarkerEdgeColor','r','LineWidth',1.5,'MarkerFaceColor','r');
-ylabel('J [J/m^2]');        ylim([0 max(J.K.Raw)+min(J.K.Raw)/4]);
+ylabel('J (J/m^2)');        ylim([0 max(J.K.Raw)+min(J.K.Raw)/4]);
 legend( ['K_{I}^{T} = '     num2str(KI.addKI.true)   ' ± ' num2str(KI.addKI.div)  ' MPa\surdm' ],...
         ['K_{I} = '     num2str(KI.true)   ' ± ' num2str(KI.div)  ' MPa\surdm' ],...
         ['K_{II} = '       num2str(KII.true)  ' ± ' num2str(KII.div) ' MPa\surdm' ],...
@@ -34,6 +34,6 @@ ax2.XLim = [0 length(Contour)+1];     ax1.XLim = [0 max(Contour)+stepsize];
 if strcmpi(input_unit,'um')
     input_unit = '\mum';
 end
-ax1.XLabel.String = ['Contour Length [' input_unit ']'];
+ax1.XLabel.String = ['Contour Length (' input_unit ')'];
 ax2.XLabel.String = 'Contour Number';
 end

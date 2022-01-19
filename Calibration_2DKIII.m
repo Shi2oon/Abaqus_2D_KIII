@@ -79,8 +79,7 @@ Maps.yo = [0.0026;0.0026]*saf;      Maps.ym = [0.03;-0.03]*saf;
 [Maps.E11,Maps.E12,Maps.E13] = crackgradient(Maps.Ux,Maps.stepsize);
 [Maps.E21,Maps.E22,Maps.E23] = crackgradient(Maps.Uy,Maps.stepsize);
 [Maps.E31,Maps.E32,Maps.E33] = crackgradient(Maps.Uz,Maps.stepsize);
-alldata = [Maps.X(:) Maps.Y(:) Maps.Z(:) Maps.E11(:) Maps.E12(:) Maps.E13(:)...
-     Maps.E21(:) Maps.E22(:) Maps.E23(:) Maps.E31(:) Maps.E32(:) Maps.E33(:)]; 
+
 %%
 eXX = Maps.E11;
 eYY = Maps.E22;
@@ -88,8 +87,7 @@ eZZ = Maps.E33;
 eXY = 1/2*(Maps.E12+Maps.E21);
 eXZ = 1/2*(Maps.E13+Maps.E31);
 eYZ = 1/2*(Maps.E23+Maps.E32);
-alldata = [Maps.X(:) Maps.Y(:) Maps.Z(:) Maps.E11(:) Maps.E12(:) Maps.E13(:)...
-    Maps.E21(:) Maps.E22(:) Maps.E23(:) Maps.E31(:) Maps.E32(:) Maps.E33(:)]; 
+
 % Chauchy stress tensor, assuming linear-elastic, isotropic material
 Maps.S11 = Maps.E/(1-Maps.nu^2)*(eXX+Maps.nu*(eYY+eZZ));
 Maps.S22 = Maps.E/(1-Maps.nu^2)*(eYY+Maps.nu*(eXX+eZZ));
@@ -97,6 +95,11 @@ Maps.S33 = Maps.E/(1-Maps.nu^2)*(eZZ+Maps.nu*(eXX+eYY));
 Maps.S12 = 2*G*eXY;
 Maps.S13 = 2*G*eXZ;
 Maps.S23 = 2*G*eYZ;
+Maps.E12 = eXY;     Maps.E21 = eXY;
+Maps.E13 = eXZ;     Maps.E31 = eXZ;
+Maps.E32 = eYZ;     Maps.E23 = eYZ;
+alldata = [Maps.X(:) Maps.Y(:) Maps.Z(:) Maps.E11(:) Maps.E22(:) Maps.E33(:)...
+           Maps.E12(:) Maps.E13(:) Maps.E23(:)]; 
 end
 
 %% Support function

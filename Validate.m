@@ -1,7 +1,7 @@
 % Validation from sythetic data
 restoredefaultpath;clc;clear;close all
 addpath(genpath([pwd '\functions']));
-[Maps,~] = Calibration_2DKIII(3,1,5);
+[Maps,alldata] = Calibration_2DKIII(3,1,5);
 [J,KI,KII,KIII] = Abaqus_2D_KIII(Maps);
 
 %% HR-EBSD example, you will need mtex and Strain2Disp_FE
@@ -20,7 +20,13 @@ cd('A:\OneDrive - Nexus365\GitHub\Strain2Disp_FE')
     alldata(:,1:2) alldata(:,4:5) alldata(:,7)],'Linear',Maps.results);
 % 3D 2nd
 FE_OOM(alldata,'Linear',Maps.results);
-[~,~,Maps.Z1,~,~,Maps.Uz] = plo3dUxy([Maps.results '\3D_Integrated_Uxy']);
+[X1,Y1,Maps.Z1,~,~,Maps.Uz] = plo3dUxy([Maps.results '\3D_Integrated_Uxy']);
+Uz = mean(Maps.Uz,3);
+F11 = scatteredInterpolant(X1(:),Y1(:),Uz(:),'natural');
+% Evaluate FE data on grid of experimental results
+newM = F11(Maps.X1(:),Maps.Y1(:));
+Maps.Uz = reshape(newM,size(Maps.Ux,1),size(Maps.Ux,2));
+save(Maps.SavingD,'Maps','-append')
 cd(PWD)
 % Calc. SIFs
 [J,KI,KII,KIII] = Abaqus_2D_KIII(Maps);
