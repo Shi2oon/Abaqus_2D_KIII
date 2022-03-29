@@ -43,6 +43,8 @@ if exist('iPut','var') || exist('C_voight','var')
         Va.Stiffness  = iPut.stiffnessvalues;
         Va.X   = Data.X;        Va.Y   = Data.Y;  
         Va.Version = 'xEBSD_V2';
+		Va.RefID = NaN(size(Va.E11));
+		Va.GrainData = NaN(size(Va.E11));
     
     elseif exist('C_voight','var') % NEW xEBSD version
         load(DirxEBSD,'Map_stress_sample','Map_strain_sample','Map_A0_sample');
@@ -66,6 +68,8 @@ Va.E31 = Map_strain_sample(:,:,3,1);    Va.E32 = Map_strain_sample(:,:,3,2);    
            [Va.X,Va.Y] = meshgrid(unique(Va.X),unique(Va.Y));
         end
         Va.Version = 'xEBSD_V3';
+		Va.RefID = Map_RefID;
+		Va.GrainData = GrainData;
     end   
     % stepsize
     uko = unique(Va.X );                Va.stepsize =(abs(uko(1)-uko(2)));
@@ -95,7 +99,5 @@ Va.nu  =  Va.Stiffness(1,2)/(Va.Stiffness(1,1)+ Va.Stiffness(1,2));
 Va.E   =  Va.Stiffness(1,1)*(1-2*Va.nu)*(1+Va.nu)/(1-Va.nu);
 Va.units.xy = 'um';       Va.units.S  = 'GPa';      Va.units.W = 'rad';
 Va.units.E  = 'Abs.';     Va.units.St = 'GPa';
-Va.RefID = Map_RefID;
-Va.GrainData = GrainData;
 end
 

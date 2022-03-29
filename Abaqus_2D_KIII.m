@@ -1,4 +1,4 @@
-function [J,KI,KII,KIII] = Abaqus_2D_KIII_v2(Maps)
+function [J,KI,KII,KIII] = Abaqus_2D_KIII(Maps)
 % variable M4 is for the displacement components
 %%
 warning on; addpath([pwd '\functions'])    
@@ -46,6 +46,9 @@ for iO=1:2
 %         Abaqus = [Dir.results '\Abaqus Output\KI'];
         [Jd,~,KI,KII] = PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
         loT(iO) = length(KI.Raw);
+%         Maps.xo = Dirxyz.xo;        Maps.yo = Dirxyz.yo;
+%         Maps.xm = Dirxyz.xm;        Maps.ym = Dirxyz.ym;
+%         Maps.Operation = 'xED';
     elseif iO==2 % fix KIII to shear rather than modulus
 %         Abaqus = [Dir.results '\Abaqus Output\KIII'];
         [Jd,~,addKI,KIII] = PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
