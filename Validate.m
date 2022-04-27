@@ -19,7 +19,21 @@ cd('A:\OneDrive - Nexus365\GitHub\Strain2Disp_FE')
 [Maps.X1,Maps.Y1,Maps.Ux,Maps.Uy,Maps.M4] = FE_OOM([...
     alldata(:,1:2) alldata(:,4:5) alldata(:,7)],'Linear',Maps.results);
 % 3D 2nd
-FE_OOM(alldata,'Linear',Maps.results);
+percentTry = 100:-10:10;    ctx = 1;   % to reduce data density when data is huge
+while ctx<length(percentTry)+1
+    try
+        [inData,~] = smotherData(alldata,percentTry(ctx));
+        X = inData(:,1);	X(isnan(inData(:,4)))=NaN;  inData(:,1) = X;
+        FE_OOM(inData,'Linear',Maps.results);
+        ctx = length(percentTry)+1;
+    catch err
+        ctx = ctx+1;
+        warning(err.message);
+        if ctx == length(percentTry)+1
+            rethrow(err);
+        end
+    end
+end
 [X1,Y1,Maps.Z1,~,~,Maps.Uz] = plo3dUxy([Maps.results '\3D_Integrated_Uxy']);
 Uz = mean(Maps.Uz,3);
 F11 = scatteredInterpolant(X1(:),Y1(:),Uz(:),'natural');
