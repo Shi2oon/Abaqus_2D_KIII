@@ -166,7 +166,9 @@ if strcmpi(Answers, 'w')
     % coordinates, i.e., a description of a vector or a tensor with respect to the crystal
     % reference frame, into specimen coordinates, i.e., a description of the same object
     % with respect to a specimen fixed reference frame.
-    [Maps.Stiffness,Maps.R,Maps.Mat] = SawpStif(Maps.results);
+    if ~strcmpi(Maps.Version,'xCourt')
+        [Maps.Stiffness,Maps.R,Maps.Mat] = SawpStif(Maps.results);
+    end
 end
 if strcmpi(answer, 'R')
     % the stiffness tensor is defined with respect to the measurement x and y, once x

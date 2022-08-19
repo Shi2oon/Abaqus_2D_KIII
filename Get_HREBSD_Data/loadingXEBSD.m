@@ -4,9 +4,11 @@ try
     DirXEBSD = [erase(DirxEBSD, '.mat') '_XEBSD.mat'];
     load(DirXEBSD,'Maps','GND','iPut','Data','C_voight','Map_RefID','GrainData'); 
 catch err
+    disp(err.message)
     load(DirxEBSD,'Maps','GND','iPut','Data','C_voight','Map_RefID','GrainData');
 end
 
+if exist('Maps','var') && exist('Data','var') && exist('C_voight','var')
 if exist('iPut','var') || exist('C_voight','var')    	
     if  ~exist('GND','var')
         try
@@ -99,5 +101,7 @@ Va.nu  =  Va.Stiffness(1,2)/(Va.Stiffness(1,1)+ Va.Stiffness(1,2));
 Va.E   =  Va.Stiffness(1,1)*(1-2*Va.nu)*(1+Va.nu)/(1-Va.nu);
 Va.units.xy = 'um';       Va.units.S  = 'GPa';      Va.units.W = 'rad';
 Va.units.E  = 'Abs.';     Va.units.St = 'GPa';
+else
+    Va = ConverXCourt2xEBSD(DirxEBSD);
 end
 
