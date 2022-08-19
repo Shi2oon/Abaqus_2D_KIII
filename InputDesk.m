@@ -5,7 +5,7 @@
 
 %%
 clc;clear
-inO = 'A:\OneDrive - Nexus365\Work\EBSD Data\##\210620\S1_1206um_20kV_10nA_150uS_XEBSD_3D_Full_map';
+inO = [pwd '\S1_1206um_20kV_10nA_150uS_XEBSD_3D_Full_map'];
 load(fullfile(inO, 'Crop & Rot Data.mat'),'Maps')
 load(fullfile(inO, 'Linear_Integrated_Uxy.mat'),'Ux','Uy','X1','Y1')
 Maps.results = inO;

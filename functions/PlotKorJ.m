@@ -1,4 +1,4 @@
-function [J,K,KI,KII]=PlotKorJ(saveto,E,offset,pp)
+function [J,K,KI,KII,Direction]=PlotKorJ(saveto,E,offset,pp)
 % fole ris the folder where all the data is vaed
 % E is the elasric modulus or the stifness tensor in Pa
 % offset: is when abaqus consider your data in meters or standard SI units
@@ -24,7 +24,8 @@ end
 %     KII.Raw    = abs(dataum.data(3,:)*sqrt(offset)*1e-6);
 %     K.Raw   = sqrt(abs(J.Raw)*E)*1e-6;
 
-[J.Raw,KI.Raw, KII.Raw, J.K.Raw,Direction] = readDATAbaqus([saveto '.dat']);
+[J.Raw,KI.Raw, KII.Raw, J.K.Raw,Direction.Raw] = ...
+    readDATAbaqus([saveto '.dat']);
 [saveto,Ond] = fileparts(saveto);
 J.Raw     = J.Raw(:)./offset;             % in J/m^2
 J.K.Raw   = J.K.Raw(:)./offset;           % in J/m^2
@@ -56,6 +57,10 @@ KI.div   = round(std(rmoutliers(KI.Raw(contrs:end)),1),dic);
 KII.true = round(mean(rmoutliers(KII.Raw(contrs:end))),dic);
 KII.div  = round(std(rmoutliers(KII.Raw(contrs:end)),1),dic);
 
+if ~isempty(Direction.Raw)
+    Direction.true = round(mean(rmoutliers(Direction.Raw(contrs:end))),1);
+    Direction.div  = round(std(rmoutliers(Direction.Raw(contrs:end)),1),1);
+end
 %% Plotting
 if ~exist('pp','var'); close all;
     %% for J
@@ -136,8 +141,8 @@ if ~exist('pp','var'); close all;
     saveas(gcf, [saveto '\' Ond '_KI, KII and J.tif']);    %close
     
     %%
-    if ~isempty(Direction)
-        Direction = Direction(1:length(KII.Raw));
+    if ~isempty(Direction.Raw)
+        Direction.Raw = Direction.Raw(1:length(KII.Raw));
         fig=figure;set(fig,'defaultAxesColorOrder',[[0 0 0]; [1 0 0]]);
         yyaxis left;    hold on;
         plot(KI.Raw,'k--o','MarkerEdgeColor','k','LineWidth',4);
@@ -145,13 +150,13 @@ if ~exist('pp','var'); close all;
         ylabel('K (MPa m^{0.5})'); hold off
         if min([KII.Raw(:); KI.Raw(:)])>0;     ylim([0 inf]);      end
         yyaxis right;
-        plot(Direction,'r--<','MarkerEdgeColor','r','LineWidth',1.5,'MarkerFaceColor','r');
+        plot(Direction.Raw,'r--<','MarkerEdgeColor','r','LineWidth',1.5,'MarkerFaceColor','r');
         ylabel('\theta^{o}'); ylim([0 90]);
         xlabel('Contour Number');
         legend(['K_{I} = '     num2str(KI.true)  ' ± ' num2str(KI.div)  ' MPa\surdm' ],...
             ['K_{II} = '    num2str(KII.true) ' ± ' num2str(KII.div) ' MPa\surdm' ],...
-            ['Direction = ' num2str(round(mean(rmoutliers(Direction(contrs:end))),dic))...
-            ' ± ' num2str(round(std(rmoutliers(Direction(contrs:end)),1),dic)) '^o'],...
+            ['Direction = ' num2str(round(mean(rmoutliers(Direction.Raw(contrs:end))),dic))...
+            ' ± ' num2str(round(std(rmoutliers(Direction.Raw(contrs:end)),1),dic)) '^o'],...
             'location','northoutside','box','off');
         set(gcf,'WindowStyle','normal');
         set(gcf,'position',[60,10,850,990]);  xlim([0 length(J.Raw)+2])
@@ -180,8 +185,8 @@ else
         box off; saveas(gcf, [saveto '\' Ond '_KI, KII and J.fig']);
         saveas(gcf, [saveto '\' Ond '_KI, KII and J.tif']);    close
         
-        if ~isempty(Direction)
-            Direction = Direction(1:length(KII.Raw));
+        if ~isempty(Direction.Raw)
+            Direction.Raw = Direction.Raw(1:length(KII.Raw));
             fig=figure;set(fig,'defaultAxesColorOrder',[[0 0 0]; [1 0 0]]);
             yyaxis left;    hold on;
             plot(KI.Raw,'b--o','MarkerEdgeColor','b','LineWidth',1.5,'MarkerFaceColor','b');
@@ -189,13 +194,13 @@ else
             ylabel('K (MPa m^{0.5})'); hold off
             if min([KII.Raw(:); KI.Raw(:)])>0;         end
             yyaxis right;
-            plot(Direction,'r--<','MarkerEdgeColor','r','LineWidth',1.5,'MarkerFaceColor','r');
+            plot(Direction.Raw,'r--<','MarkerEdgeColor','r','LineWidth',1.5,'MarkerFaceColor','r');
             ylabel('\theta^{o}'); ylim([0 90]);
             xlabel('Contour Number');
             legend(['K_{I} = '     num2str(KI.true)  ' ± ' num2str(KI.div)  ' MPa\surdm' ],...
                 ['K_{II} = '    num2str(KII.true) ' ± ' num2str(KII.div) ' MPa\surdm' ],...
-                ['Direction = ' num2str(round(mean(rmoutliers(Direction(contrs:end))),...
-                dic)) ' ± ' num2str(round(std(rmoutliers(Direction(contrs:end)),1),...
+                ['Direction = ' num2str(round(mean(rmoutliers(Direction.Raw(contrs:end))),...
+                dic)) ' ± ' num2str(round(std(rmoutliers(Direction.Raw(contrs:end)),1),...
                 dic)) '^o'],'location','northoutside','box','off');
             set(gcf,'WindowStyle','normal');
             set(gcf,'position',[60,10,850,990]);  xlim([0 length(J.Raw)+2])

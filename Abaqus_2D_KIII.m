@@ -1,7 +1,7 @@
 function [J,KI,KII,KIII] = Abaqus_2D_KIII(Maps)
 % variable M4 is for the displacement components
 %%
-warning on; addpath([pwd '\functions'])    
+warning on; addpath([pwd '\functions'])
 if size(Maps.Uz,3) ~=1
     Maps.Uz = Maps.Uz(:,:,1);
 end
@@ -29,10 +29,10 @@ for iO=1:2
         Dirxyz.Ux = Maps.Ux;
         Dirxyz.Uy = Maps.Uy;
     elseif iO == 2 % Mode III
-        Dirxyz.Ux = 1/2*(Maps.Uz-flipud(Maps.Uz));
+        Dirxyz.Ux = Maps.Uz;%1/2*(Maps.Uz-flipud(Maps.Uz));
         % in case it is zero as Abaqus won't work
-        Dirxyz.Uy = 1/2*(Maps.Uz+flipud(Maps.Uz)) ... 
-                         + ones(size(Maps.Ux))*1e-12;
+        Dirxyz.Uy = ones(size(Maps.Ux))*1e-12;%+ 1/2*(Maps.Uz+flipud(Maps.Uz)) ...
+        
     end
     alldata = Dirxyz;
     [DATA,UnitOffset,Dirxyz, Dirxyz.msk,SaveD] = ...
@@ -40,26 +40,41 @@ for iO=1:2
     % prepare and run abaqus cae
     [Abaqus,~] = PrintRunCode(Dirxyz, ...
         Dirxyz.msk,SaveD,ceil(min(size(DATA.X1))*0.5-2),UnitOffset);
-
-%     UnitOffset = 1e-6;
+    
+    %     UnitOffset = 1e-6;
     if iO == 1      % Mode I
-%         Abaqus = [Dir.results '\Abaqus Output\KI'];
-        [Jd,~,KI,KII] = PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
+        %         Abaqus = [Dir.results '\Abaqus Output\KI'];
+        [Jd,~,KI,KII,Direction] = ...
+            PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
+        if ~isempty(Direction.Raw)
+            fprint('\nRecommended J-integral direction is %.2f',Direction.true)
+            Ans = input('Do you want to adjust (N/Y)?');
+            if strcmpi(Ans,'Y')
+                [Abaqus] = Adjust4Direction(Abaqus,Direction.true);
+                [Jd,~,KI,KII,Direction.Raw] = ...
+                    PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
+            end
+        end
         loT(iO) = length(KI.Raw);
-%         Maps.xo = Dirxyz.xo;        Maps.yo = Dirxyz.yo;
-%         Maps.xm = Dirxyz.xm;        Maps.ym = Dirxyz.ym;
-%         Maps.Operation = 'xED';
+        %         Maps.xo = Dirxyz.xo;        Maps.yo = Dirxyz.yo;
+        %         Maps.xm = Dirxyz.xm;        Maps.ym = Dirxyz.ym;
+        %         Maps.Operation = 'xED';
     elseif iO==2 % fix KIII to shear rather than modulus
-%         Abaqus = [Dir.results '\Abaqus Output\KIII'];
-        [Jd,~,addKI,KIII] = PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
+        %         Abaqus = [Dir.results '\Abaqus Output\KIII'];
+        [Jd,~,addKI,KIII,Dir] = PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
         % correct from in-plane to out-of-plane shear
-        KIII.Raw = KIII.Raw*2*Maps.G/Maps.E; 
-%         Jd.Raw   = (KIII.Raw.*1e6).^2/(2*Dir.G);
-%         Jd.K.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
+        KIII.Raw = KIII.Raw*2*Maps.G/Maps.E;
+        %         Jd.Raw   = (KIII.Raw.*1e6).^2/(2*Dir.G);
+        %         Jd.K.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
         loT(iO)  = length(KIII.Raw);
+        if ~isempty(Dir.Raw)
+        Direction.Raw(iO,1:length(Dir))=Dir.Raw;
+        Direction.true(iO)=Dir.true;
+        Direction.div(iO)=Dir.div;
+        end
     end
     % J when calculating the SIF (more accurate)
-    JKRaw(iO,1:length(Jd.K.Raw)) = Jd.K.Raw; 
+    JKRaw(iO,1:length(Jd.K.Raw)) = Jd.K.Raw;
     JRaw(iO,1:length(Jd.Raw)) = Jd.Raw; % J from J analysis
 end
 % JKRaw(3,1:length(addKI.Raw)) = (addKI.Raw.*1e6).^2/Dir.E;
@@ -71,9 +86,9 @@ J.JIII = JRaw;
 J.Raw = sum(J.JIII(:,1:min(loT)));
 J.K.Raw = sum(J.JKIII(:,1:min(loT)));
 
-J.Raw = J.Raw(1:min(loT));      
+J.Raw = J.Raw(1:min(loT));
 J.K.Raw = J.K.Raw(1:min(loT));
-KI.Raw = KI.Raw(1:min(loT));    
+KI.Raw = KI.Raw(1:min(loT));
 addKI.Raw = addKI.Raw(1:min(loT));
 KI.addKI.Raw = KI.Raw + addKI.Raw ;% add addtional KI to KI
 KII.Raw = KII.Raw(1:min(loT));
@@ -107,7 +122,8 @@ plotJKIII(KI,KII,KIII,J,Maps.stepsize,Maps.units.xy)
 saveas(gcf, [Maps.results '\J_KI_II_III_abaqus.fig']);
 saveas(gcf, [Maps.results '\J_KI_II_III_abaqus.tif']);    close all
 
-save([Maps.results '\Abaqus_2D_KIII.mat'],'Maps','J','KI','KII','KIII');
+save([Maps.results '\Abaqus_2D_KIII.mat'],'Maps','J','KI',...
+    'KII','KIII','Direction');
 
 plotDecomposed_v2(Maps)
 saveas(gcf, [Maps.results '\U_Dec.fig']);
