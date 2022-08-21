@@ -1,9 +1,13 @@
 function plotJKIII(KI,KII,KIII,J,stepsize,input_unit)
 Kd = [KI.Raw(:); KII.Raw(:); KIII.Raw(:)];
+contrs   = length(J.Raw);        contrs = contrs - round(contrs*0.4);
 set(0,'defaultAxesFontSize',22);       set(0,'DefaultLineMarkerSize',16)
 Contour = (1:length(J.Raw))*stepsize;
 fig=figure;set(fig,'defaultAxesColorOrder',[[0 0 0]; [1 0 0]]);
 yyaxis left;    hold on;
+    patch([Contour(contrs) Contour(end) Contour(end) Contour(contrs)], ...
+        [min(Kd(:)) min(Kd(:)), max(Kd(:)) max(Kd(:))]...
+       , [0.95 0.5 0.9],'edgecolor','none','facealpha','0.3')
 plot(Contour,KI.addKI.Raw,'k--o','MarkerEdgeColor','k','LineWidth',1.5);
 plot(Contour,KI.Raw,'k--o','MarkerEdgeColor','k','LineWidth',1.5,'MarkerFaceColor','k');
 plot(Contour,KII.Raw,'k--s','MarkerEdgeColor','k','LineWidth',1.5,'MarkerFaceColor','k');

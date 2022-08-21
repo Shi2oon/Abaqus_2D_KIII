@@ -120,13 +120,13 @@ KIII.div  = round(std(rmoutliers(KIII.Raw(contrs:end)),1),dic);
 %%
 plotJKIII(KI,KII,KIII,J,Maps.stepsize,Maps.units.xy)
 saveas(gcf, [Maps.results '\J_KI_II_III_abaqus.fig']);
-saveas(gcf, [Maps.results '\J_KI_II_III_abaqus.tif']);    close all
+saveas(gcf, [Maps.results '\J_KI_II_III_abaqus.tif']);    %close all
 
 save([Maps.results '\Abaqus_2D_KIII.mat'],'Maps','J','KI',...
     'KII','KIII','Direction');
 
-plotDecomposed_v2(Maps)
+figure; plotDecomposed_v2(Maps)
 saveas(gcf, [Maps.results '\U_Dec.fig']);
-saveas(gcf, [Maps.results '\U_Dec.tif']);    close
+saveas(gcf, [Maps.results '\U_Dec.tif']);    %close
 %}
 end
