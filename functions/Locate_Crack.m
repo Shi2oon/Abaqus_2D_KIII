@@ -159,7 +159,7 @@ title({'Crack Position (x,y) from tip to the end is at ',[ num2str(xo(1)) ' , ' 
     num2str(xm(1)) ' , ' num2str(ym(1))], ['Picture Frame is at ' ...
     num2str(min(datum.X1(1,:))) ' , ' num2str(min(datum.Y1(:,1))) ' and ' ...
     num2str(max(datum.X1(1,:))) ' , ' num2str(max(datum.Y1(:,1)))],''});
-saveas(gcf, [DataFile '\DIC2ABAQUS Coodrinate.tif']); close all
+saveas(gcf, [DataFile '_Corr.tif']); close all
 
 msk.xo = xo;            msk.yo = yo;
 msk.xm = xm;            msk.ym = ym;
@@ -171,6 +171,6 @@ datum.Ux(isnan(datum.Ux))=0;            datum.Uy(isnan(datum.Uy))=0;
 alldata = [datum.X1(:), datum.Y1(:), datum.Ux(:), datum.Uy(:)];
 alldata = table(alldata(:,1), alldata(:,2), alldata(:,3), alldata(:,4),...
     'VariableNames',{'x','y', 'displacement_x', 'displacement_y'});
-SaveD = [DataFile '\Data Uxy.dat'];
+SaveD = [DataFile '_Data.dat'];
 writetable(alldata, SaveD, 'Delimiter',' ');
 end
