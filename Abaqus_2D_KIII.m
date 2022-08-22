@@ -68,9 +68,9 @@ for iO=1:2
         %         Jd.K.Raw = (KIII.Raw.*1e6).^2/(2*Dir.G);
         loT(iO)  = length(KIII.Raw);
         if ~isempty(Dir.Raw)
-        Direction.Raw(iO,1:length(Dir))=Dir.Raw;
-        Direction.true(iO)=Dir.true;
-        Direction.div(iO)=Dir.div;
+            Direction.Raw(iO,1:length(Dir))=Dir.Raw;
+            Direction.true(iO)=Dir.true;
+            Direction.div(iO)=Dir.div;
         end
     end
     % J when calculating the SIF (more accurate)
