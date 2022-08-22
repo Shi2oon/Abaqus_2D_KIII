@@ -1,4 +1,4 @@
-function [J,KI,KII,KIII] = Abaqus_2D_KIII(Maps)
+function [J,KI,KII,KIII,Direction] = Abaqus_2D_KIII(Maps)
 % variable M4 is for the displacement components
 %%
 warning on; addpath([pwd '\functions'])
@@ -47,8 +47,8 @@ for iO=1:2
         [Jd,~,KI,KII,Direction] = ...
             PlotKorJ(Abaqus,Maps.E,UnitOffset,1);
         if ~isempty(Direction.Raw)
-            fprint('\nRecommended J-integral direction is %.2f',Direction.true)
-            Ans = input('Do you want to adjust (N/Y)?');
+            fprintf('\nRecommended J-integral direction is %.2f\n',Direction.true)
+            Ans = input('Do you want to adjust (N/Y)?','s');
             if strcmpi(Ans,'Y')
                 [Abaqus] = Adjust4Direction(Abaqus,Direction.true);
                 [Jd,~,KI,KII,Direction.Raw] = ...
@@ -125,8 +125,8 @@ saveas(gcf, [Maps.results '\J_KI_II_III_abaqus.tif']);    %close all
 save([Maps.results '\Abaqus_2D_KIII.mat'],'Maps','J','KI',...
     'KII','KIII','Direction');
 
-figure; plotDecomposed_v2(Maps)
-saveas(gcf, [Maps.results '\U_Dec.fig']);
-saveas(gcf, [Maps.results '\U_Dec.tif']);    %close
+%figure; plotDecomposed_v2(Maps)
+%saveas(gcf, [Maps.results '\U_Dec.fig']);
+%saveas(gcf, [Maps.results '\U_Dec.tif']);    close
 %}
 end
